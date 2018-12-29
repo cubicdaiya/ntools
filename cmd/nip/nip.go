@@ -46,7 +46,6 @@ func main() {
 			os.Exit(1)
 		}
 		bins[i] = sb
-
 	}
 	fmt.Printf("%s.%s.%s.%s\n", bins[0], bins[1], bins[2], bins[3])
 }
