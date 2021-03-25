@@ -22,21 +22,7 @@ func ten2bin(octet string) (string, error) {
 	return fmt.Sprintf("%08b", n), nil
 }
 
-func main() {
-	var (
-		ipStr string
-	)
-	flag.StringVar(&ipStr, "ip", "", "IP address")
-	flag.Parse()
-
-	if ipStr == "" {
-		usage()
-	}
-
-	if ip := net.ParseIP(ipStr); ip == nil {
-		usage()
-	}
-
+func IP4bins(ipStr string) []string {
 	octets := strings.Split(ipStr, ".")
 	bins := make([]string, net.IPv4len)
 	for i, octet := range octets {
@@ -47,5 +33,28 @@ func main() {
 		}
 		bins[i] = sb
 	}
-	fmt.Printf("%s.%s.%s.%s\n", bins[0], bins[1], bins[2], bins[3])
+	return bins
+}
+
+func main() {
+	var (
+		ipStr string
+	)
+	flag.StringVar(&ipStr, "ip", "", "IPv4 address or CIDR")
+	flag.Parse()
+
+	if ipStr == "" {
+		usage()
+	}
+
+	if ip, _, err := net.ParseCIDR(ipStr); err == nil {
+		cidrs := strings.Split(ipStr, "/")
+		bins := IP4bins(ip.String())
+		fmt.Printf("%s.%s.%s.%s/%s\n", bins[0], bins[1], bins[2], bins[3], cidrs[1])
+	} else if ip := net.ParseIP(ipStr); ip != nil {
+		bins := IP4bins(ipStr)
+		fmt.Printf("%s.%s.%s.%s\n", bins[0], bins[1], bins[2], bins[3])
+	} else {
+		usage()
+	}
 }
